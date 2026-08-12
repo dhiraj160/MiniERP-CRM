@@ -1,0 +1,155 @@
+// Prisma Schema for Mini ERP + CRM Operations Portal
+// Database: SQLite (for zero-config local run)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// ─── Models ──────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         String   @default("SALES") // ADMIN | SALES | WAREHOUSE | ACCOUNTS
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  customersCreated Customer[]      @relation("CustomerCreator")
+  customerNotes    CustomerNote[]
+  stockMovements   StockMovement[]
+  challansCreated  Challan[]
+
+  @@map("users")
+}
+
+model Customer {
+  id           String         @id @default(uuid())
+  name         String
+  mobile       String?
+  email        String?
+  businessName String?        @map("business_name")
+  gstNumber    String?        @map("gst_number")
+  customerType String         @default("RETAILER") @map("customer_type") // RETAILER | WHOLESALER | DISTRIBUTOR
+  address      String?
+  status       String         @default("ACTIVE") // ACTIVE | INACTIVE | LEAD
+  followUpDate DateTime?      @map("follow_up_date")
+  notes        String?
+  createdById  String         @map("created_by")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  createdBy     User           @relation("CustomerCreator", fields: [createdById], references: [id])
+  customerNotes CustomerNote[]
+  challans      Challan[]
+
+  @@map("customers")
+}
+
+model CustomerNote {
+  id         String   @id @default(uuid())
+  customerId String   @map("customer_id")
+  note       String
+  createdById String  @map("created_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  customer  Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  createdBy User     @relation(fields: [createdById], references: [id])
+
+  @@map("customer_notes")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id           String   @id @default(uuid())
+  name         String
+  sku          String   @unique
+  categoryId   String   @map("category_id")
+  price        Float
+  currentStock Int      @default(0) @map("current_stock")
+  minimumStock Int      @default(10) @map("minimum_stock")
+  warehouse    String   @default("Main Warehouse")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  category       Category        @relation(fields: [categoryId], references: [id])
+  stockMovements StockMovement[]
+  challanItems   ChallanItem[]
+
+  @@map("products")
+}
+
+model StockMovement {
+  id        String            @id @default(uuid())
+  productId String            @map("product_id")
+  type      String            // IN | OUT
+  quantity  Int
+  reason    String?
+  userId    String            @map("user_id")
+  createdAt DateTime          @default(now()) @map("created_at")
+
+  // Relations
+  product Product @relation(fields: [productId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@map("stock_movements")
+}
+
+model Challan {
+  id            String        @id @default(uuid())
+  challanNumber String        @unique @map("challan_number")
+  customerId    String        @map("customer_id")
+  createdById   String        @map("created_by")
+  status        String        @default("DRAFT") // DRAFT | CONFIRMED | CANCELLED
+  totalAmount   Float         @default(0) @map("total_amount")
+  notes         String?
+  confirmedAt   DateTime?     @map("confirmed_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  customer  Customer      @relation(fields: [customerId], references: [id])
+  createdBy User          @relation(fields: [createdById], references: [id])
+  items     ChallanItem[]
+
+  @@map("challans")
+}
+
+model ChallanItem {
+  id          String @id @default(uuid())
+  challanId   String @map("challan_id")
+  productId   String @map("product_id")
+  productName String @map("product_name")  // Snapshot
+  productSku  String @map("product_sku")   // Snapshot
+  unitPrice   Float  @map("unit_price")    // Snapshot
+  quantity    Int
+  lineTotal   Float  @map("line_total")
+
+  // Relations
+  challan Challan @relation(fields: [challanId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("challan_items")
+}

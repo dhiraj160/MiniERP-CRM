@@ -1,0 +1,20 @@
+# Backend ignores
+node_modules
+dist
+
+# Prisma
+prisma/dev.db
+
+# Environment
+.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+
+# Editor
+.vscode
+.idea
