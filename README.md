@@ -103,19 +103,33 @@ The database seeds a few accounts for local testing:
 
 > ⚠️ These are for local development only. Disable or change them before any public or production deployment.
 
-## Deploying to AWS (or any cloud VM)
+## ☁️ Online Deployment (Render)
 
-1. **Provision a server** — a basic Ubuntu EC2 instance (t2.micro/t3.small is enough to start). Open ports 80 (HTTP), 443 (HTTPS), and 22 (SSH) in the security group.
-2. **Install Docker** — SSH in and install Docker + Docker Compose.
-3. **Clone & configure** — pull the repo, then set a strong `JWT_SECRET` and real database credentials in `backend/.env`. Point `frontend/.env` at your server's domain or public IP instead of `localhost`.
-4. **Deploy** — `docker-compose up -d --build`.
-5. **(Recommended) Reverse proxy + SSL** — put NGINX in front of the containers on the host and attach a free Let's Encrypt certificate.
+This repository is pre-configured for a **1-click deployment** on [Render](https://render.com), completely free of charge. The deployment uses a `render.yaml` Blueprint which automatically provisions a PostgreSQL Database, a Node.js Backend, and a Vite/React Static Frontend.
 
-## API testing
+### Deployment Steps:
+1. **Push your code to GitHub**: Make sure this repository is pushed to your own GitHub account.
+2. **Sign in to Render**: Go to [render.com](https://render.com) and log in with your GitHub account.
+3. **New Blueprint**: Click on the **New** button at the top right and select **Blueprint**.
+4. **Connect Repository**: Connect the GitHub repository containing this code.
+5. **Deploy**: Render will read the `render.yaml` file and automatically provision all 3 services.
+6. **URLs**: Once the deployment finishes, your Frontend URL and Backend API URL will be visible in the Render dashboard.
+
+*Note: The database is automatically seeded with test credentials during the first deployment.*
+
+## ☁️ Deploying to AWS (or any cloud VM)
+
+1. **Provision a server** – a basic Ubuntu EC2 instance (t2.micro/t3.small is enough to start). Open ports 80 (HTTP), 443 (HTTPS), and 22 (SSH) in the security group.
+2. **Install Docker** – SSH in and install Docker + Docker Compose.
+3. **Clone & configure** – pull the repo, then set a strong `JWT_SECRET` and real database credentials in `backend/.env`. Point `frontend/.env` at your server's domain or public IP instead of `localhost`.
+4. **Deploy** – `docker-compose up -d --build`.
+5. **(Recommended) Reverse proxy + SSL** – put NGINX in front of the containers on the host and attach a free Let's Encrypt certificate.
+
+## 🧪 Postman Collection & API Documentation
 
 A ready-to-import Postman collection is included: `Mini-CRM.postman_collection.json`.
 
-Open Postman → **Import** → select the file. It has pre-built requests for Authentication, Customers, Products, Inventory, and Challans. Log in first and set the returned JWT as your Bearer Token variable before hitting the other endpoints.
+Open Postman -> **Import** -> select the file. It has pre-built requests for Authentication, Customers, Products, Inventory, and Challans. Log in first and set the returned JWT as your Bearer Token variable before hitting the other endpoints.
 
 ## Known limitations & assumptions
 

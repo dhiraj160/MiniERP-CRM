@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: minicrm-backend
+    env: node
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npx prisma db push && npx tsx prisma/seed.ts && npm start
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: minicrm-db
+          property: connectionString
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 24h
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: CORS_ORIGIN
+        value: '*'
+
+  - type: web
+    name: minicrm-frontend
+    env: static
+    region: oregon
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && VITE_API_URL=${BACKEND_URL}/api npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: BACKEND_URL
+        fromService:
+          type: web
+          name: minicrm-backend
+          envVarKey: RENDER_EXTERNAL_URL
+
+databases:
+  - name: minicrm-db
+    plan: free
+    region: oregon

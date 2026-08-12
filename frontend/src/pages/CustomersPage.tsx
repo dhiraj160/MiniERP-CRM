@@ -382,6 +382,17 @@ export const CustomersPage = () => {
                 />
               </div>
               <div className="form-group">
+                <label htmlFor="editGstNumber">GST Number</label>
+                <input
+                  id="editGstNumber"
+                  className="input-control"
+                  value={editFormData.gstNumber}
+                  onChange={(event) =>
+                    setEditFormData({ ...editFormData, gstNumber: event.target.value })
+                  }
+                />
+              </div>
+              <div className="form-group">
                 <label htmlFor="editEmail">Email</label>
                 <input
                   id="editEmail"
@@ -482,10 +493,11 @@ export const CustomersPage = () => {
             </form>
           ) : (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
                   <p><strong>Name:</strong> {selectedCustomer.name}</p>
-                  <p><strong>Business:</strong> {selectedCustomer.businessName || '-'}</p>
+                  <p><strong>Business Name:</strong> {selectedCustomer.businessName || '-'}</p>
+                  <p><strong>GST Number:</strong> {selectedCustomer.gstNumber || '-'}</p>
                   <p><strong>Type:</strong> {selectedCustomer.customerType}</p>
                   <p><strong>Status:</strong> {selectedCustomer.status}</p>
                 </div>
@@ -597,6 +609,16 @@ export const CustomersPage = () => {
                   value={formData.businessName}
                   onChange={(event) =>
                     setFormData({ ...formData, businessName: event.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="gstNumber">GST Number</label>
+                <input
+                  id="gstNumber"
+                  className="input-control"
+                  value={formData.gstNumber}
+                  onChange={(event) =>
+                    setFormData({ ...formData, gstNumber: event.target.value })}
                 />
               </div>
               <div className="form-group">
