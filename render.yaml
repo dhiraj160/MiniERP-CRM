@@ -28,7 +28,6 @@ services:
   - type: web
     name: minicrm-frontend
     env: static
-    region: oregon
     plan: free
     rootDir: frontend
     buildCommand: npm install && VITE_API_URL=${BACKEND_URL}/api npm run build
