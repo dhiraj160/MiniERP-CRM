@@ -1,115 +1,135 @@
 # Mini ERP + CRM Operations Portal
 
-A complete, full-stack Mini ERP and CRM system built for wholesale and distribution companies. This application provides a centralized operational workflow for internal employees (Admin, Sales, Warehouse, Accounts) to manage customer CRM, product inventory, and sales challans.
+A full-stack Mini ERP and CRM system built for wholesale and distribution companies. It gives internal teams (Admin, Sales, Warehouse, Accounts) one place to manage customer relationships, product inventory, and sales challans — instead of juggling spreadsheets and disconnected tools.
 
-## 🌟 Architecture & Theoretical Workflow
+## Why this exists
 
-This system is built around a controlled operational flow:
+Small distribution businesses usually end up tracking customers in one spreadsheet, stock in another, and sales notes in a notebook or WhatsApp thread. Nothing talks to anything else, and stock counts drift out of sync with what's actually been sold. This project ties those three pieces together into a single, role-based workflow so that confirming a sale automatically and safely updates inventory — no manual reconciliation required.
 
-**Employee → Authentication → Role Identification → Customer/Product Data → Sales Challan → Inventory Validation → Stock Movement → Final Operational Record**
+## How the system is organized
 
-### The Core Flow
-1. **Authentication & Roles:** Only authenticated internal employees can access the portal. Role-Based Access Control (RBAC) ensures employees only see what they are authorized to see.
-2. **Customer CRM:** The first layer of business information. Tracks customer details, leads, active relationships, and sales follow-up notes.
-3. **Product & Inventory:** The operational foundation. Maintains a separation between **Identity** (SKU, Price, Category) and **State** (Current Stock). Includes a full historical stock movement log (IN/OUT).
-4. **Sales Challan (The Bridge):** Connects CRM to Inventory. Allows sales staff to draft challans. When a challan is **Confirmed**, the system atomically validates stock. If sufficient, it creates an OUT stock movement and preserves a historical snapshot of the product pricing. If insufficient, it returns a hard API error to protect inventory integrity.
+The whole app is built around one controlled flow:
 
----
+```
+Employee → Authentication → Role Identification → Customer/Product Data
+  → Sales Challan → Inventory Validation → Stock Movement → Final Record
+```
 
-## 🚀 Tech Stack
+**Authentication & Roles**
+Only authenticated employees can access the portal, and Role-Based Access Control (RBAC) makes sure each person only sees what their role needs.
 
-- **Backend:** Node.js, TypeScript, Express.js, Prisma ORM
-- **Database:** PostgreSQL (with transactional integrity for stock validation)
-- **Frontend:** React, TypeScript, Vite, Vanilla CSS
-- **Deployment:** Docker, Docker Compose, NGINX (SPA Routing)
+**Customer CRM**
+The first layer of business data — customer details, leads, active relationships, and sales follow-up notes.
 
----
+**Product & Inventory**
+The operational core. Product *identity* (SKU, price, category) is kept separate from product *state* (current stock), and every stock change is logged in a full IN/OUT movement history.
 
-## 🛠️ Setup Instructions (Local Deployment)
+**Sales Challan — the bridge between CRM and Inventory**
+Sales staff draft challans freely. The moment a challan is **confirmed**, the system:
+- Validates stock atomically
+- If stock is sufficient → creates an OUT movement and snapshots the pricing at that moment
+- If stock is insufficient → returns a hard API error, so inventory integrity is never silently broken
 
-This project is fully containerized with Docker, meaning you can launch the entire stack (Database, Backend API, and Frontend UI) with a single command.
+## Tech stack
 
-### Prerequisites
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
-- Git installed.
+| Layer | Tech |
+|---|---|
+| Backend | Node.js, TypeScript, Express.js, Prisma ORM |
+| Database | PostgreSQL (transactional integrity for stock checks) |
+| Frontend | React, TypeScript, Vite, Vanilla CSS |
+| Deployment | Docker, Docker Compose, NGINX (SPA routing) |
 
-### 1. Clone the repository
+## Getting it running locally
+
+Everything is containerized, so the entire stack (database, API, and UI) comes up with one command.
+
+**Prerequisites**
+- Docker Desktop installed and running
+- Git installed
+
+**1. Clone the repo**
 ```bash
-git clone <your-github-repo-url>
+git clone https://github.com/<your-username>/Mini-CRM.git
 cd Mini-CRM
 ```
 
-### 2. Environment Variables
-The `.env` files are already configured with sensible defaults for local Docker testing. 
-*Note: For production AWS deployment, you must change these variables.*
+**2. Set up environment variables**
 
-**Backend `.env`** (`backend/.env`):
+Copy the example files and fill in your own values — don't commit real secrets.
+
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+```
+
+`backend/.env` expects:
 ```env
 NODE_ENV=development
 PORT=3000
-DATABASE_URL="postgresql://crm_user:crm_password@postgres:5432/crm_db?schema=public"
-JWT_SECRET="supersecretjwtkeythatshouldbechangedinproduction"
+DATABASE_URL="postgresql://<db_user>:<db_password>@postgres:5432/crm_db?schema=public"
+JWT_SECRET="<generate-a-long-random-string>"
 JWT_EXPIRES_IN="1d"
 ```
 
-**Frontend `.env`** (`frontend/.env`):
+`frontend/.env` expects:
 ```env
 VITE_API_URL=http://localhost:3000/api/v1
 ```
 
-### 3. Launch the Application
-Open a terminal in the root directory and run:
+**3. Launch everything**
 ```bash
 docker-compose up -d --build
 ```
+
 This will:
-1. Pull the PostgreSQL 15 image and initialize the database.
-2. Build and start the Node.js backend (automatically running Prisma migrations and seeding default accounts).
-3. Build the React frontend and serve it using NGINX.
+- Pull and initialize the PostgreSQL 15 image
+- Build and start the Node.js backend, running Prisma migrations and seeding default accounts
+- Build the React frontend and serve it via NGINX
 
-### 4. Access the Application
-- **Frontend Web Portal:** [http://localhost](http://localhost)
-- **Backend API Base URL:** `http://localhost:3000/api/v1`
+**4. Open it up**
+- Frontend: `http://localhost`
+- Backend API: `http://localhost:3000/api/v1`
 
----
+## Test credentials
 
-## 🔐 Test Credentials
-
-The database is automatically seeded with the following accounts for testing:
+The database seeds a few accounts for local testing:
 
 | Role | Email | Password |
-|------|-------|----------|
-| **Admin** | `admin@minierp.com` | `password123` |
-| **Sales** | `sales@minierp.com` | `password123` |
-| **Warehouse** | `warehouse@minierp.com` | `password123` |
-| **Accounts** | `accounts@minierp.com` | `password123` |
+|---|---|---|
+| Admin | admin@minierp.com | password123 |
+| Sales | sales@minierp.com | password123 |
+| Warehouse | warehouse@minierp.com | password123 |
+| Accounts | accounts@minierp.com | password123 |
 
----
+> ⚠️ These are for local development only. Disable or change them before any public or production deployment.
 
-## ☁️ Server Setup & AWS Deployment Guide
+## Deploying to AWS (or any cloud VM)
 
-To deploy this to AWS or any cloud provider:
+1. **Provision a server** — a basic Ubuntu EC2 instance (t2.micro/t3.small is enough to start). Open ports 80 (HTTP), 443 (HTTPS), and 22 (SSH) in the security group.
+2. **Install Docker** — SSH in and install Docker + Docker Compose.
+3. **Clone & configure** — pull the repo, then set a strong `JWT_SECRET` and real database credentials in `backend/.env`. Point `frontend/.env` at your server's domain or public IP instead of `localhost`.
+4. **Deploy** — `docker-compose up -d --build`.
+5. **(Recommended) Reverse proxy + SSL** — put NGINX in front of the containers on the host and attach a free Let's Encrypt certificate.
 
-1. **Provision an EC2 Instance:** Launch a basic Ubuntu EC2 instance (t2.micro or t3.small) and open ports `80` (HTTP), `443` (HTTPS), and `22` (SSH) in the Security Group.
-2. **Install Docker:** SSH into your instance and install Docker and Docker Compose.
-3. **Clone & Configure:** Clone your repository to the server. Update the `backend/.env` file with a strong `JWT_SECRET` and secure database password. Update the `frontend/.env` to point to your server's public IP or Domain instead of localhost.
-4. **Deploy:** Run `docker-compose up -d --build`. 
-5. **(Optional) Reverse Proxy & SSL:** Set up an NGINX reverse proxy on the host machine to route traffic to the Docker containers and attach a free Let's Encrypt SSL certificate.
+## API testing
 
----
+A ready-to-import Postman collection is included: `Mini-CRM.postman_collection.json`.
 
-## 🧪 Postman Collection & API Documentation
+Open Postman → **Import** → select the file. It has pre-built requests for Authentication, Customers, Products, Inventory, and Challans. Log in first and set the returned JWT as your Bearer Token variable before hitting the other endpoints.
 
-A fully configured Postman collection is included in the repository to test all endpoints.
-- **File:** `Mini-CRM.postman_collection.json`
-- **Instructions:** Open Postman -> Click "Import" -> Select this file. 
-- The collection contains pre-configured requests for Authentication, Customers, Products, Inventory, and Challans. *Ensure you log in first and set the JWT token as a Bearer Token variable.*
+## Known limitations & assumptions
 
----
+- **Invoices & Purchase Orders** — mentioned in the original business context but intentionally left out, since they weren't part of the core modules this system was scoped to cover.
+- **Database transactions** — stock reduction on challan confirmation relies on atomic transactions (via Prisma's `$transaction`) to prevent race conditions under concurrent use.
+- **Draft challans don't reserve stock** — per the requirements, a Draft doesn't touch inventory. Stock is only reduced when a challan is Confirmed.
+- **Security posture** — locally, Postgres is only reachable inside the Docker network. For a real production deployment, use a managed database (e.g., Amazon RDS) inside a private VPC rather than a containerized DB on the same host.
 
-## ⚠️ Known Limitations & Assumptions
+## Project structure
 
-1. **Invoice & Purchase Orders:** While mentioned in the business context, these were not implemented as they were explicitly omitted from the "Core Modules Required" section to keep the system scoped appropriately.
-2. **Database Transactions:** The stock reduction during challan confirmation assumes atomic database transactions (handled via Prisma `$transaction`) to prevent race conditions in concurrent environments.
-3. **Draft State Deductions:** As per requirements, creating a Draft Challan does *not* reserve inventory. Stock is only reduced upon Confirmation.
-4. **Security:** In this local configuration, the PostgreSQL database is exposed to internal Docker networking only. For a true production AWS deployment, a managed database like Amazon RDS inside a private VPC is recommended over a containerized database.
+```
+Mini-CRM/
+├── backend/          # Express + Prisma API
+├── frontend/          # React + Vite UI
+├── docker-compose.yml
+└── Mini-CRM.postman_collection.json
+```
