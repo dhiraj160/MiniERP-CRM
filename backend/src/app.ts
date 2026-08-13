@@ -21,8 +21,7 @@ const app: Express = express();
 app.use(helmet());
 app.use(
   cors({
-    // During local development allow all origins so Vite may pick any port (5173/5174/5175...)
-    origin: config.nodeEnv === 'development' ? true : config.cors.origin,
+    origin: true,
     credentials: true,
   })
 );
