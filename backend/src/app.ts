@@ -35,14 +35,14 @@ app.get('/health', (_req, res) => {
 });
 
 // API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/customers', customerRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/stock', stockRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/challans', challanRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/customers', customerRoutes);
+app.use('/api/v1/products', productRoutes);
+app.use('/api/v1/stock', stockRoutes);
+app.use('/api/v1/categories', categoryRoutes);
+app.use('/api/v1/challans', challanRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/dashboard', dashboardRoutes);
 
 // Global Error Handler
 app.use(errorHandler);

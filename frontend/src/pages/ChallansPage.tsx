@@ -5,6 +5,7 @@ import { customersApi } from '../api/customers';
 import { productsApi } from '../api/products';
 import { GlobalApiError } from '../components/Layout/GlobalApiError';
 import { LiquidLoader } from '../components/ui/LiquidLoader';
+import { generateChallanPDF } from '../utils/pdf/challanPdf';
 
 interface CustomerOption {
   id: string;
@@ -54,6 +55,8 @@ export const ChallansPage = () => {
   const [error, setError] = useState<any>(null);
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [search, setSearch] = useState('');
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [downloadSuccessId, setDownloadSuccessId] = useState<string | null>(null);
 
   const isFormDirty = items.length > 0;
   useUnsavedChanges(isFormDirty);
@@ -210,6 +213,27 @@ export const ChallansPage = () => {
       loadChallans();
     } catch (err: any) {
       console.error('Unable to cancel challan', err);
+    }
+  };
+
+  const handleDownloadPDF = async (challanId: string) => {
+    setDownloadingId(challanId);
+    setError(null);
+    try {
+      // Fetch full challan details (with items and full customer info)
+      const fullChallan = await challansApi.getById(challanId);
+      
+      // Generate and download PDF
+      await generateChallanPDF(fullChallan.data);
+      
+      // Show success state briefly
+      setDownloadSuccessId(challanId);
+      setTimeout(() => setDownloadSuccessId(null), 3000);
+    } catch (err: any) {
+      console.error('Unable to generate PDF', err);
+      setError('Unable to generate the challan PDF. Please try again.');
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -434,11 +458,13 @@ export const ChallansPage = () => {
                         </button>
                       ) : challan.status === 'CONFIRMED' ? (
                         <button
-                          className="btn btn-primary"
-                          disabled
-                          style={{ opacity: 0.6 }}
+                          className="btn btn-secondary"
+                          onClick={() => handleDownloadPDF(challan.id)}
+                          disabled={downloadingId === challan.id}
                         >
-                          Confirmed
+                          {downloadingId === challan.id ? 'Generating PDF...' : 
+                           downloadSuccessId === challan.id ? '✓ PDF downloaded' : 
+                           'Download PDF'}
                         </button>
                       ) : null}
                       
