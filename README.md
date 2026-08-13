@@ -2,6 +2,10 @@
 
 A full-stack Mini ERP and CRM system built for wholesale and distribution companies. It gives internal teams (Admin, Sales, Warehouse, Accounts) one place to manage customer relationships, product inventory, and sales challans — instead of juggling spreadsheets and disconnected tools.
 
+> 🚀 **Live Demo:** [https://minicrm-frontend.onrender.com](https://minicrm-frontend.onrender.com)
+> 📡 **Live API:** [https://minicrm-backend-xzdu.onrender.com/api/v1](https://minicrm-backend-xzdu.onrender.com/api/v1)
+> 🔑 **Test Accounts:** `admin@minierp.com`, `sales@minierp.com`, `warehouse@minierp.com`, `accounts@minierp.com` (Password: `password123`)
+
 ## Why this exists
 
 Small distribution businesses usually end up tracking customers in one spreadsheet, stock in another, and sales notes in a notebook or WhatsApp thread. Nothing talks to anything else, and stock counts drift out of sync with what's actually been sold. This project ties those three pieces together into a single, role-based workflow so that confirming a sale automatically and safely updates inventory — no manual reconciliation required.
